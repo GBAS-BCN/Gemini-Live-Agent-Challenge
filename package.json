@@ -1,0 +1,17 @@
+{
+  "name": "remote-hands-monorepo",
+  "version": "1.0.0",
+  "private": true,
+  "description": "The Remote Hands – hands-free DIY repair assistant powered by Gemini Multimodal Live API and Meta smart glasses.",
+  "workspaces": [
+    "backend",
+    "mobile"
+  ],
+  "scripts": {
+    "backend": "npm run dev --workspace=backend",
+    "mobile": "npm run start --workspace=mobile"
+  },
+  "engines": {
+    "node": ">=20"
+  }
+}

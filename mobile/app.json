@@ -1,0 +1,60 @@
+{
+  "expo": {
+    "name": "Remote Hands",
+    "slug": "remote-hands",
+    "version": "1.0.0",
+    "orientation": "portrait",
+    "icon": "./assets/icon.png",
+    "userInterfaceStyle": "dark",
+    "splash": {
+      "image": "./assets/splash.png",
+      "resizeMode": "contain",
+      "backgroundColor": "#0d0d0d"
+    },
+    "ios": {
+      "supportsTablet": false,
+      "bundleIdentifier": "com.remotehands.app",
+      "infoPlist": {
+        "NSCameraUsageDescription": "Remote Hands needs camera access to stream your view through the Meta smart glasses.",
+        "NSMicrophoneUsageDescription": "Remote Hands needs microphone access to capture your voice commands.",
+        "NSBluetoothAlwaysUsageDescription": "Remote Hands uses Bluetooth to connect to your Meta smart glasses.",
+        "NSBluetoothPeripheralUsageDescription": "Remote Hands uses Bluetooth to connect to your Meta smart glasses.",
+        "NSLocalNetworkUsageDescription": "Remote Hands uses the local network to communicate with the Meta glasses companion app.",
+        "LSApplicationQueriesSchemes": [
+          "arkit",
+          "meta-horizon",
+          "meta-dat"
+        ],
+        "CFBundleURLTypes": [
+          {
+            "CFBundleURLSchemes": [
+              "remotehands",
+              "meta-dat-remotehands"
+            ]
+          }
+        ]
+      }
+    },
+    "android": {
+      "adaptiveIcon": {
+        "foregroundImage": "./assets/adaptive-icon.png",
+        "backgroundColor": "#0d0d0d"
+      },
+      "package": "com.remotehands.app"
+    },
+    "web": {
+      "favicon": "./assets/favicon.png"
+    },
+    "plugins": [
+      [
+        "expo-av",
+        {
+          "microphonePermission": "Remote Hands needs microphone access to capture your voice commands."
+        }
+      ]
+    ],
+    "extra": {
+      "backendWsUrl": "wss://YOUR_CLOUD_RUN_SERVICE_URL/ws"
+    }
+  }
+}
