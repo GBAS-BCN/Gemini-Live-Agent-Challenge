@@ -1,0 +1,70 @@
+# cloudbuild.yaml – Build and deploy the Remote Hands backend to Cloud Run
+#
+# Trigger this from the Google Cloud Console or via:
+#   gcloud builds submit --config=cloudbuild.yaml .
+#
+# Required substitutions (set in Cloud Build trigger or --substitutions flag):
+#   _SERVICE_NAME   – Cloud Run service name   (default: remote-hands-backend)
+#   _REGION         – Cloud Run region          (default: us-central1)
+#   _PROJECT_ID     – Google Cloud project ID   (auto-set by Cloud Build)
+
+substitutions:
+  _SERVICE_NAME: remote-hands-backend
+  _REGION: us-central1
+
+options:
+  logging: CLOUD_LOGGING_ONLY
+
+steps:
+  # 1. Build the Docker image
+  - name: "gcr.io/cloud-builders/docker"
+    id: build
+    args:
+      - build
+      - "--tag=gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
+      - "--tag=gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest"
+      - "--file=Dockerfile"
+      - "."
+    dir: backend
+
+  # 2. Push both tags to Container Registry
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-sha
+    args:
+      - push
+      - "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
+    waitFor: [build]
+
+  - name: "gcr.io/cloud-builders/docker"
+    id: push-latest
+    args:
+      - push
+      - "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest"
+    waitFor: [build]
+
+  # 3. Deploy to Cloud Run
+  - name: "gcr.io/google.com/cloudsdktool/cloud-sdk"
+    id: deploy
+    entrypoint: gcloud
+    args:
+      - run
+      - deploy
+      - "${_SERVICE_NAME}"
+      - "--image=gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
+      - "--region=${_REGION}"
+      - "--platform=managed"
+      - "--allow-unauthenticated"
+      - "--port=8080"
+      - "--min-instances=0"
+      - "--max-instances=10"
+      - "--cpu=1"
+      - "--memory=512Mi"
+      # GEMINI_API_KEY is injected at deploy time via Secret Manager:
+      #   --set-secrets=GEMINI_API_KEY=gemini-api-key:latest
+      # Add that flag in your trigger configuration or uncomment below:
+      # - "--set-secrets=GEMINI_API_KEY=gemini-api-key:latest"
+    waitFor: [push-sha]
+
+images:
+  - "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:$COMMIT_SHA"
+  - "gcr.io/$PROJECT_ID/${_SERVICE_NAME}:latest"
